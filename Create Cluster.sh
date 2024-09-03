@@ -1,43 +1,57 @@
-#kind cluster setup
+# Kind Cluster Setup
 
-#remove old version of docker 
+# Remove old version of Docker
+sudo yum remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
 
-sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
-
-# setup the docker repo
+# Setup the Docker repository
 sudo yum install -y yum-utils
 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
-#install docker engine 
+# Install Docker Engine
 sudo yum install -y docker-ce docker-ce-cli containerd.io
 
-#start Docker Engine
+# Start Docker Engine
 sudo systemctl start docker
 sudo systemctl enable docker
 
-
-
-#install kubectl 
+# Install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 
-#verfiy the installation
+# Verify kubectl installation
 kubectl version --client
 
-
-
-#Install Kind
+# Install Kind
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
 chmod +x ./kind
 sudo mv ./kind /usr/local/bin/
 
-#verif the installation 
+# Verify Kind installation
 kind --version
 
-# create kind cluster
-kind create cluster --name kind-cluster
+# Create Kind configuration file
+cat <<EOF > kind-config.yaml
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+metadata:
+  name: cyber-knights
+spec:
+  nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
+EOF
 
-#verify the cluster
-kubectl cluster-info --context kind-kind-cluster
+# Create the Kind cluster using the configuration file
+kind create cluster --name cyber-knights --config kind-config.yaml
+
+# Verify the cluster
+kubectl cluster-info --context kind-cyber-knights
 kubectl get nodes
+
+# Pull the Nginx Docker image
+docker pull nginx:latest
+
+# Load the Nginx image into the Kind cluster
+kind load docker-image nginx:latest --name cyber-knights
