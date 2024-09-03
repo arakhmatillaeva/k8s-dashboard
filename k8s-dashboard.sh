@@ -6,6 +6,8 @@ kubectl create serviceaccount admin-user -n kubernetes-dashboard
 kubectl create clusterrolebinding admin-user-binding --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:admin-user
 #4. Obtain the Bearer Token for Authentication
 kubectl get serviceaccount admin-user -n kubernetes-dashboard -o jsonpath='{.secrets[0].name}'
+#Generate the token
+kubectl -n kubernetes-dashboard create token admin-user
 #5. Access the Kubernetes Dashboard
 kubectl proxy
 #6. Login to the Dashboard
